@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My Planner - برنامه‌ریز شخصی برای مدیریت فعالیت‌ها، زمان و پیشرفت">
+    <title>My Planner | برنامه‌ریز شخصی</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ===================== نوار کناری ===================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo">📝</div>
+            <div class="brand-text">
+                <strong>My Planner</strong>
+                <span>برنامه‌ریز شخصی</span>
+            </div>
+        </div>
+
+        <nav class="nav" id="main-nav">
+            <button class="nav-item active" data-view="dashboard">
+                <span class="nav-icon">🏠</span>
+                <span>داشبورد امروز</span>
+            </button>
+            <button class="nav-item" data-view="tasks">
+                <span class="nav-icon">🗂️</span>
+                <span>فعالیت‌ها</span>
+            </button>
+            <button class="nav-item" data-view="reports">
+                <span class="nav-icon">📊</span>
+                <span>گزارش‌ها</span>
+            </button>
+            <button class="nav-item" data-view="categories">
+                <span class="nav-icon">🏷️</span>
+                <span>دسته‌بندی‌ها</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="theme-toggle" type="button" title="تغییر حالت روشن/تاریک">
+                <span id="theme-icon">🌙</span>
+                <span id="theme-label">حالت تاریک</span>
+            </button>
+            <p class="version">نسخه ۱٫۰٫۰</p>
+        </div>
+    </aside>
+
+    <!-- ===================== محتوای اصلی ===================== -->
+    <main class="main">
+
+        <!-- ---------- داشبورد ---------- -->
+        <section class="view active" id="view-dashboard">
+            <header class="page-head">
+                <div>
+                    <h1 id="greeting">سلام 👋</h1>
+                    <p class="subtitle" id="today-date">امروز</p>
+                </div>
+                <button class="btn btn-primary" data-open-task-modal>
+                    <span>＋</span> فعالیت جدید
+                </button>
+            </header>
+
+            <!-- بنر تایمر فعال -->
+            <div class="timer-banner hidden" id="timer-banner">
+                <div class="timer-banner-info">
+                    <span class="pulse-dot"></span>
+                    <div>
+                        <strong id="timer-banner-title">—</strong>
+                        <small>در حال انجام است</small>
+                    </div>
+                </div>
+                <div class="timer-banner-time" id="timer-banner-time">00:00:00</div>
+                <div class="timer-banner-actions">
+                    <button class="btn btn-ghost" id="timer-banner-stop">توقف</button>
+                    <button class="btn btn-ghost" id="timer-banner-open">مشاهده</button>
+                </div>
+            </div>
+
+            <!-- کارت‌های آماری -->
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#6366f1">🗂️</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="stat-total">۰</span>
+                        <span class="stat-label">فعالیت امروز</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#22c55e">✅</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="stat-done">۰</span>
+                        <span class="stat-label">انجام‌شده</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#f59e0b">⏳</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="stat-planned">۰</span>
+                        <span class="stat-label">زمان برنامه‌ریزی‌شده</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#06b6d4">⏱️</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="stat-actual">۰</span>
+                        <span class="stat-label">زمان واقعی</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- حلقه پیشرفت -->
+                <article class="card progress-card">
+                    <h2 class="card-title">پیشرفت امروز</h2>
+                    <div class="progress-ring-wrap">
+                        <svg class="progress-ring" viewBox="0 0 120 120">
+                            <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+                            <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52"></circle>
+                        </svg>
+                        <div class="progress-ring-text">
+                            <strong id="ring-percent">۰٪</strong>
+                            <small>تکمیل</small>
+                        </div>
+                    </div>
+                    <p class="muted center" id="progress-caption">هنوز فعالیتی برای امروز ثبت نشده است.</p>
+                </article>
+
+                <!-- مقایسه برنامه و عملکرد -->
+                <article class="card compare-card">
+                    <h2 class="card-title">برنامه در برابر عملکرد</h2>
+                    <div id="compare-today" class="compare-list"></div>
+                </article>
+            </div>
+
+            <!-- فعالیت‌های امروز -->
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="card-title">فعالیت‌های امروز</h2>
+                    <button class="link-btn" data-goto-view="tasks">مشاهده همه</button>
+                </div>
+                <div id="today-tasks" class="task-list"></div>
+            </article>
+        </section>
+
+        <!-- ---------- فعالیت‌ها ---------- -->
+        <section class="view" id="view-tasks">
+            <header class="page-head">
+                <div>
+                    <h1>مدیریت فعالیت‌ها</h1>
+                    <p class="subtitle">افزودن، ویرایش، حذف و پیگیری فعالیت‌ها</p>
+                </div>
+                <button class="btn btn-primary" data-open-task-modal>
+                    <span>＋</span> فعالیت جدید
+                </button>
+            </header>
+
+            <article class="card">
+                <div class="filters">
+                    <div class="field">
+                        <label for="filter-search">جستجو</label>
+                        <input type="search" id="filter-search" placeholder="عنوان فعالیت...">
+                    </div>
+                    <div class="field">
+                        <label for="filter-category">دسته‌بندی</label>
+                        <select id="filter-category"><option value="">همه</option></select>
+                    </div>
+                    <div class="field">
+                        <label for="filter-status">وضعیت</label>
+                        <select id="filter-status">
+                            <option value="">همه</option>
+                            <option value="todo">انجام‌نشده</option>
+                            <option value="in_progress">در حال انجام</option>
+                            <option value="done">انجام‌شده</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="filter-date-from">از تاریخ</label>
+                        <input type="date" id="filter-date-from">
+                    </div>
+                    <div class="field">
+                        <label for="filter-date-to">تا تاریخ</label>
+                        <input type="date" id="filter-date-to">
+                    </div>
+                    <button class="btn btn-ghost" id="filter-clear">پاک‌کردن فیلترها</button>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="card-title">فهرست فعالیت‌ها</h2>
+                    <span class="badge" id="tasks-count">۰ مورد</span>
+                </div>
+                <div id="all-tasks" class="task-list"></div>
+            </article>
+        </section>
+
+        <!-- ---------- گزارش‌ها ---------- -->
+        <section class="view" id="view-reports">
+            <header class="page-head">
+                <div>
+                    <h1>گزارش‌ها و پیشرفت</h1>
+                    <p class="subtitle">مقایسه برنامه و عملکرد، گزارش روزانه و هفتگی</p>
+                </div>
+                <div class="field inline">
+                    <label for="report-date">تاریخ گزارش</label>
+                    <input type="date" id="report-date">
+                </div>
+            </header>
+
+            <!-- گزارش روزانه -->
+            <div class="stats-grid" id="report-stats">
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#6366f1">🗂️</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="r-total">۰</span>
+                        <span class="stat-label">فعالیت‌ها</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#22c55e">✅</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="r-done">۰</span>
+                        <span class="stat-label">انجام‌شده</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#f59e0b">⏳</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="r-planned">۰</span>
+                        <span class="stat-label">زمان برنامه</span>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon" style="--c:#06b6d4">⏱️</div>
+                    <div class="stat-body">
+                        <span class="stat-value" id="r-actual">۰</span>
+                        <span class="stat-label">زمان واقعی</span>
+                    </div>
+                </article>
+            </div>
+
+            <!-- گزارش هفتگی -->
+            <article class="card">
+                <div class="card-head">
+                    <h2 class="card-title">گزارش هفتگی</h2>
+                    <div class="week-nav">
+                        <button class="btn btn-ghost" id="week-prev">هفته قبل</button>
+                        <span id="week-label" class="badge">—</span>
+                        <button class="btn btn-ghost" id="week-next">هفته بعد</button>
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <span><i class="dot" style="background:#f59e0b"></i> زمان برنامه‌ریزی‌شده</span>
+                    <span><i class="dot" style="background:#06b6d4"></i> زمان واقعی</span>
+                </div>
+                <div class="chart" id="weekly-chart"></div>
+                <div class="week-totals" id="week-totals"></div>
+            </article>
+
+            <!-- تفکیک دسته‌بندی -->
+            <article class="card">
+                <h2 class="card-title">عملکرد بر اساس دسته‌بندی (این هفته)</h2>
+                <div id="category-report" class="category-report"></div>
+            </article>
+        </section>
+
+        <!-- ---------- دسته‌بندی‌ها ---------- -->
+        <section class="view" id="view-categories">
+            <header class="page-head">
+                <div>
+                    <h1>دسته‌بندی‌ها</h1>
+                    <p class="subtitle">حوزه‌های فعالیت خود را مدیریت کنید</p>
+                </div>
+            </header>
+
+            <article class="card">
+                <h2 class="card-title">افزودن دسته‌بندی</h2>
+                <form class="category-form" id="category-form">
+                    <div class="field">
+                        <label for="cat-name">نام</label>
+                        <input type="text" id="cat-name" placeholder="مثلاً: موسیقی" required maxlength="50">
+                    </div>
+                    <div class="field">
+                        <label for="cat-icon">آیکون</label>
+                        <input type="text" id="cat-icon" value="📌" maxlength="4">
+                    </div>
+                    <div class="field">
+                        <label for="cat-color">رنگ</label>
+                        <input type="color" id="cat-color" value="#6366f1">
+                    </div>
+                    <button class="btn btn-primary" type="submit" id="cat-submit">افزودن</button>
+                    <button class="btn btn-ghost hidden" type="button" id="cat-cancel">انصراف</button>
+                </form>
+            </article>
+
+            <div class="categories-grid" id="categories-grid"></div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ===================== مودال فعالیت ===================== -->
+<div class="modal-overlay" id="task-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+        <div class="modal-head">
+            <h2 id="task-modal-title">فعالیت جدید</h2>
+            <button class="icon-btn" data-close-modal aria-label="بستن">✕</button>
+        </div>
+        <form id="task-form" class="modal-body">
+            <input type="hidden" id="task-id">
+
+            <div class="field">
+                <label for="task-title">عنوان فعالیت *</label>
+                <input type="text" id="task-title" required maxlength="200" placeholder="مثلاً: تمرین JavaScript">
+            </div>
+
+            <div class="field">
+                <label for="task-description">توضیحات</label>
+                <textarea id="task-description" rows="2" maxlength="2000" placeholder="جزئیات فعالیت (اختیاری)"></textarea>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label for="task-category">دسته‌بندی</label>
+                    <select id="task-category"><option value="">بدون دسته‌بندی</option></select>
+                </div>
+                <div class="field">
+                    <label for="task-status">وضعیت</label>
+                    <select id="task-status">
+                        <option value="todo">انجام‌نشده</option>
+                        <option value="in_progress">در حال انجام</option>
+                        <option value="done">انجام‌شده</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="field">
+                    <label for="task-date">تاریخ برنامه‌ریزی *</label>
+                    <input type="date" id="task-date" required>
+                </div>
+                <div class="field">
+                    <label for="task-start">ساعت شروع</label>
+                    <input type="time" id="task-start">
+                </div>
+                <div class="field">
+                    <label for="task-minutes">مدت مورد انتظار (دقیقه)</label>
+                    <input type="number" id="task-minutes" min="0" max="1440" value="0">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="task-achievement">دستاورد / نتیجه</label>
+                <textarea id="task-achievement" rows="2" maxlength="4000" placeholder="چه چیزی یاد گرفتید یا به دست آوردید؟"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" data-close-modal>انصراف</button>
+                <button type="submit" class="btn btn-primary" id="task-submit">ذخیره</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===================== مودال تأیید حذف ===================== -->
+<div class="modal-overlay" id="confirm-modal" aria-hidden="true">
+    <div class="modal modal-sm" role="alertdialog" aria-modal="true">
+        <div class="modal-head">
+            <h2>تأیید حذف</h2>
+            <button class="icon-btn" data-close-confirm aria-label="بستن">✕</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirm-text">آیا مطمئن هستید؟</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" data-close-confirm>انصراف</button>
+                <button type="button" class="btn btn-danger" id="confirm-yes">حذف</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== پیام‌های شناور ===================== -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
